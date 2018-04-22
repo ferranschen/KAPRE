@@ -1,5 +1,5 @@
-How to compile with pbc.h?
+How to compile 
 1.chmod <filename> 777
 2.chown -R <username> `pwd`
 3.gcc -o <outputname> <filename> -I /usr/local/include/pbc -L /usr/local/lib -Wl,-rpath /usr/local/lib  -lpbc -lgmp
-4. ./OUTPUT < param/<paramfile>
+4. ./<outputname> < param/<paramfile>
