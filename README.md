@@ -31,7 +31,13 @@ until finished
 ```
 
 End with an example of getting some data out of the system or using it for a little demo
-
+### How to compile 
+```
+1.chmod <filename> 777
+2.chown -R <username> `pwd`
+3.gcc -o <outputname> <filename> -I /usr/local/include/pbc -L /usr/local/lib -Wl,-rpath /usr/local/lib  -lpbc -lgmp
+4. ./<outputname> < param/<paramfile>
+```
 
 ## Built With
 
@@ -57,8 +63,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * etc
 
 
-## How to compile 
-1.chmod <filename> 777
-2.chown -R <username> `pwd`
-3.gcc -o <outputname> <filename> -I /usr/local/include/pbc -L /usr/local/lib -Wl,-rpath /usr/local/lib  -lpbc -lgmp
-4. ./<outputname> < param/<paramfile>
+
