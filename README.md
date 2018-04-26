@@ -46,7 +46,7 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Authors
 
-* **Ferrans Chen** - [Me](https://github.com/ferranschen)
+* [**Ferrans Chen**](https://github.com/ferranschen)
 
 ## License
 
