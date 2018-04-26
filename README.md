@@ -41,7 +41,7 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
+* [PBC](http://www.dropwizard.io/1.0.2/docs/) - The Pairing-Based Cryptography Library
 
 
 ## Authors
