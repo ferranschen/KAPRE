@@ -2,15 +2,26 @@
 #include <pbc_test.h>
 #define FILETYPES 3 // In this demo code, we assume here that there are totally 3 types of files.
 
-typedef struct Secret_key{
+typedef struct SECRET_KEY{
   element_t a1, a2, a3;
 } secret_key;
-typedef struct Public_key{
+typedef struct PUBLIC_KEY{
   element_t part1; 
   element_t part2;
   element_t part3[5]; // index = 3 * 2 - 1 
 } public_key;
-
+typedef struct SECOND_LEVEL_CIPHERTEXT{
+  element_t c0, c1, c2, c3, c4, c5 , c6, c7, c8, c9; // c0 presents k in paper. 
+} second_level_ciphertext;
+typedef struct SECOND_LEVEL_PARAMETER{
+  element_t t, k, r, n;
+} second_level_parameter;
+typedef struct FIRST_LEVEL_CIPHERTEXT{
+  element_t c0, c1, c2, c3, c4, c5, c6;
+} first_level_ciphertext;
+typedef struct FIRST_LEVEL_PARAMETER{
+  element_t k, r, n;
+} first_level_parameter;
 
 int main(int argc, char **argv) {
 
@@ -29,7 +40,10 @@ int main(int argc, char **argv) {
   secret_key BobSecretKey;
   public_key AlicePublicKey;
   public_key BobPublicKey;
-
+  second_level_ciphertext AliceSecondLevelCiphertext;
+  first_level_ciphertext AliceFirstLevelCiphertext;
+  second_level_parameter AliceSecondLevelParameter;
+  first_level_parameter AliceFirstLevelParameter;
 
   beginTime = pbc_get_time();  
   // Setup & init
@@ -57,6 +71,33 @@ int main(int argc, char **argv) {
   element_init_Zr(BobSecretKey.a1, pairing);  
   element_init_Zr(BobSecretKey.a2, pairing);  
   element_init_Zr(BobSecretKey.a3, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c0, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c1, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c2, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c3, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c4, pairing);
+  element_init_Zr(AliceSecondLevelCiphertext.c5, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c6, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c7, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c8, pairing);
+  element_init_Zr(AliceSecondLevelCiphertext.c9, pairing);
+
+  element_init_G1(AliceFirstLevelCiphertext.c0, pairing);
+  element_init_G1(AliceFirstLevelCiphertext.c1, pairing);
+  element_init_GT(AliceFirstLevelCiphertext.c2, pairing);
+  element_init_Zr(AliceFirstLevelCiphertext.c3, pairing);
+  element_init_G1(AliceFirstLevelCiphertext.c4, pairing);
+  element_init_G1(AliceFirstLevelCiphertext.c5, pairing);
+  element_init_Zr(AliceFirstLevelCiphertext.c6, pairing);
+
+  element_init_Zr(AliceSecondLevelParameter.t, pairing);
+  element_init_Zr(AliceSecondLevelParameter.k, pairing);
+  element_init_Zr(AliceSecondLevelParameter.r, pairing);
+  element_init_Zr(AliceSecondLevelParameter.n, pairing);
+  element_init_Zr(AliceFirstLevelParameter.k, pairing);
+  element_init_Zr(AliceFirstLevelParameter.r, pairing);
+  element_init_Zr(AliceFirstLevelParameter.n, pairing);
+
   element_random(g);
   element_random(d);
   element_random(u);
@@ -112,9 +153,19 @@ int main(int argc, char **argv) {
   element_init_G1(r2, pairing);
   element_invert( tempZR, AliceSecretKey.a1);
   element_pow_zn(r1, BobPublicKey.part1, tempZR); // r1 = BobPublicKey.part1^(1/AliceSecretKey.a1)
-  // Enc1
+//  element_printf("BobPublicKey.part1 = %B\n", BobPublicKey.part1); 
+//  element_pow_zn(r1, r1, AliceSecretKey.a1); // r1 = BobPublicKey.part1^(1/AliceSecretKey.a1)
+//  element_printf("r1 = %B\n", r1);
+  element_mul(r2, AlicePublicKey.part3[2], AlicePublicKey.part3[1]); // We assume ALice share file set S = {1,2}
+  element_pow_zn(r2, r2, AliceSecretKey.a2); //  
   // Enc2
+  Alice
+  // Enc1
   // Re-encrption
+  
+  // Dec1
+
+  // Dec2
   endTime = pbc_get_time();  
   printf("All time = %fs\n", endTime - beginTime);
   return 0;
