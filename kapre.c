@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
   element_init_Zr(BobSecretKey.a1, pairing);  
   element_init_Zr(BobSecretKey.a2, pairing);  
   element_init_Zr(BobSecretKey.a3, pairing);
-  element_init_G1(AliceSecondLevelCiphertext.c0, pairing);
+  element_init_Zr(AliceSecondLevelCiphertext.c0, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c1, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c2, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c3, pairing);
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
   element_init_G1(AliceSecondLevelCiphertext.c8, pairing);
   element_init_Zr(AliceSecondLevelCiphertext.c9, pairing);
 
-  element_init_G1(AliceFirstLevelCiphertext.c0, pairing);
+  element_init_Zr(AliceFirstLevelCiphertext.c0, pairing);
   element_init_G1(AliceFirstLevelCiphertext.c1, pairing);
   element_init_GT(AliceFirstLevelCiphertext.c2, pairing);
   element_init_Zr(AliceFirstLevelCiphertext.c3, pairing);
@@ -159,8 +159,23 @@ int main(int argc, char **argv) {
   element_mul(r2, AlicePublicKey.part3[2], AlicePublicKey.part3[1]); // We assume ALice share file set S = {1,2}
   element_pow_zn(r2, r2, AliceSecretKey.a2); //  
   // Enc2
-  Alice
+  element_random(AliceSecondLevelParameter.t);
+  element_random(AliceSecondLevelParameter.k);
+  element_random(AliceSecondLevelParameter.r);
+  element_random(AliceSecondLevelParameter.n);
+  element_set(AliceSecondLevelCiphertext.c0, AliceSecondLevelParameter.k);
+  element_pow_zn(AliceSecondLevelCiphertext.c1, d, AliceSecondLevelParameter.r);
+  element_pow_zn(AliceSecondLevelCiphertext.c2, g, AliceSecretKey.a1);
+  element_pow_zn(AliceSecondLevelCiphertext.c2, AliceSecondLevelCiphertext.c2, AliceSecondLevelParameter.r);
+  element_pow_zn(AliceSecondLevelCiphertext.c3, g, AliceSecondLevelParameter.t);
+  element_pow_zn(AliceSecondLevelCiphertext.c4, g, AliceSecretKey.a2);
+  element_mul(AliceSecondLevelCiphertext.c4, AliceSecondLevelCiphertext.c4, AlicePublicKey.part3[0]);
+  element_pow_zn(AliceSecondLevelCiphertext.c4, AliceSecondLevelCiphertext.c4, AliceSecondLevelParameter.t);
   // Enc1
+  element_random(AliceFirstLevelParameter.k);
+  element_random(AliceFirstLevelParameter.r);
+  element_random(AliceFirstLevelParameter.n);
+  element_set(AliceFirstLevelCiphertext.c0, AliceFirstLevelParameter.k);
   // Re-encrption
   
   // Dec1
