@@ -23,6 +23,13 @@ typedef struct FIRST_LEVEL_PARAMETER{
   element_t k, r, n;
 } first_level_parameter;
 
+
+
+unsigned long hash(unsigned char *str);
+
+
+
+
 int main(int argc, char **argv) {
 
   pairing_t pairing;
@@ -159,6 +166,8 @@ int main(int argc, char **argv) {
   element_mul(r2, AlicePublicKey.part3[2], AlicePublicKey.part3[1]); // We assume ALice share file set S = {1,2}
   element_pow_zn(r2, r2, AliceSecretKey.a2); //  
   // Enc2
+  unsigned char *data;
+  int length = 0;
   element_random(AliceSecondLevelParameter.t);
   element_random(AliceSecondLevelParameter.k);
   element_random(AliceSecondLevelParameter.r);
@@ -171,6 +180,19 @@ int main(int argc, char **argv) {
   element_pow_zn(AliceSecondLevelCiphertext.c4, g, AliceSecretKey.a2);
   element_mul(AliceSecondLevelCiphertext.c4, AliceSecondLevelCiphertext.c4, AlicePublicKey.part3[0]);
   element_pow_zn(AliceSecondLevelCiphertext.c4, AliceSecondLevelCiphertext.c4, AliceSecondLevelParameter.t);
+  length = pairing_length_in_bytes_G1(pairing);
+  data = malloc(length);
+  element_to_bytes(data, AliceSecondLevelCiphertext.c2);
+  data[length] = '\0'; 
+  printf("hash value:%lu\n",hash(data));
+  printf("hash value:%lu\n",hash(data));
+  printf("hash value:%lu\n",hash(data));
+  printf("hash value:%lu\n",hash(data));
+  printf("hash value:%lu\n",hash(data));
+  printf("hash value:%lu\n",hash(data));
+  printf("hash value:%lu\n",hash(data));
+  printf("hash value:%lu\n",hash(data));
+
   // Enc1
   element_random(AliceFirstLevelParameter.k);
   element_random(AliceFirstLevelParameter.r);
@@ -185,3 +207,17 @@ int main(int argc, char **argv) {
   printf("All time = %fs\n", endTime - beginTime);
   return 0;
 }
+
+
+unsigned long hash(unsigned char *str)
+{
+  unsigned long hash = 5381;
+  int c;
+
+  while (c = *str++)
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+  return hash;
+}
+
+
