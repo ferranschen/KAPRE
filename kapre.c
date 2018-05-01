@@ -10,14 +10,20 @@ typedef struct PUBLIC_KEY{
   element_t part2;
   element_t part3[5]; // index = 3 * 2 - 1 
 } public_key;
+typedef struct CIPHER{
+  element_t G1_type;
+  unsigned long long_type;
+} cipher;
 typedef struct SECOND_LEVEL_CIPHERTEXT{
-  element_t c0, c1, c2, c3, c4, c5 , c6, c7, c8, c9; // c0 presents k in paper. 
+  element_t c0, c1, c2, c3, c4, c6, c7, c8, c9; // c0 presents k in paper. 
+  cipher c5;
 } second_level_ciphertext;
 typedef struct SECOND_LEVEL_PARAMETER{
   element_t t, k, r, n;
 } second_level_parameter;
 typedef struct FIRST_LEVEL_CIPHERTEXT{
-  element_t c0, c1, c2, c3, c4, c5, c6;
+  element_t c0, c1, c2, c4, c5, c6;
+  cipher c3;
 } first_level_ciphertext;
 typedef struct FIRST_LEVEL_PARAMETER{
   element_t k, r, n;
@@ -38,10 +44,10 @@ int main(int argc, char **argv) {
   if (!pairing_is_symmetric(pairing)) pbc_die("pairing must be symmetric");
  
   double beginTime = 0, endTime = 0;
-  
   element_t g, d, u, v, w; // g, d ,u, v, w are generators in G1 group
   element_t tempZR;
   element_t tempG1;
+  element_t tempG1_2;
   element_t tempGT;
   element_t number[100]; 
   element_t Z;
@@ -53,6 +59,8 @@ int main(int argc, char **argv) {
   first_level_ciphertext AliceFirstLevelCiphertext;
   second_level_parameter AliceSecondLevelParameter;
   first_level_parameter AliceFirstLevelParameter;
+  first_level_ciphertext BobFirstLevelCiphertext;
+  first_level_parameter BobFirstLevelParameter;
 
   beginTime = pbc_get_time();  
   // Setup & init
@@ -62,6 +70,7 @@ int main(int argc, char **argv) {
   element_init_G1(v, pairing);
   element_init_G1(w, pairing);
   element_init_G1(tempG1, pairing);
+  element_init_G1(tempG1_2, pairing);
   element_init_GT(tempGT, pairing);
   element_init_Zr(tempZR, pairing);
   element_init_GT(Z, pairing);
@@ -85,19 +94,29 @@ int main(int argc, char **argv) {
   element_init_G1(AliceSecondLevelCiphertext.c2, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c3, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c4, pairing);
-  element_init_Zr(AliceSecondLevelCiphertext.c5, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c5.G1_type, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c6, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c7, pairing);
   element_init_G1(AliceSecondLevelCiphertext.c8, pairing);
-  element_init_Zr(AliceSecondLevelCiphertext.c9, pairing);
+  element_init_G1(AliceSecondLevelCiphertext.c9, pairing);
 
   element_init_Zr(AliceFirstLevelCiphertext.c0, pairing);
   element_init_G1(AliceFirstLevelCiphertext.c1, pairing);
   element_init_GT(AliceFirstLevelCiphertext.c2, pairing);
-  element_init_Zr(AliceFirstLevelCiphertext.c3, pairing);
+  element_init_G1(AliceFirstLevelCiphertext.c3.G1_type, pairing);
   element_init_G1(AliceFirstLevelCiphertext.c4, pairing);
   element_init_G1(AliceFirstLevelCiphertext.c5, pairing);
-  element_init_Zr(AliceFirstLevelCiphertext.c6, pairing);
+  element_init_G1(AliceFirstLevelCiphertext.c6, pairing);
+
+  
+  element_init_Zr(BobFirstLevelCiphertext.c0, pairing);
+  element_init_G1(BobFirstLevelCiphertext.c1, pairing);
+  element_init_GT(BobFirstLevelCiphertext.c2, pairing);
+  element_init_G1(BobFirstLevelCiphertext.c3.G1_type, pairing);
+  element_init_G1(BobFirstLevelCiphertext.c4, pairing);
+  element_init_G1(BobFirstLevelCiphertext.c5, pairing);
+  element_init_G1(BobFirstLevelCiphertext.c6, pairing);
+
 
   element_init_Zr(AliceSecondLevelParameter.t, pairing);
   element_init_Zr(AliceSecondLevelParameter.k, pairing);
@@ -119,7 +138,6 @@ int main(int argc, char **argv) {
   element_random(BobSecretKey.a2);
   element_random(BobSecretKey.a3);
   element_pairing(Z, g, g);
-  element_printf("system parameter Z = %B\n", Z);
   // Key Generation
   element_pow_zn(AlicePublicKey.part1, g, AliceSecretKey.a1); 
   element_pow_zn(AlicePublicKey.part2, g, AliceSecretKey.a2);
@@ -141,77 +159,130 @@ int main(int argc, char **argv) {
 
   }
 
-  element_printf("AliceSecretKey.a1 = %B\n", AliceSecretKey.a1);
-  element_printf("AliceSecretKey.a2 = %B\n", AliceSecretKey.a2);
-  element_printf("AliceSecretKey.a3 = %B\n", AliceSecretKey.a3);
-  for(int i = 0; i < FILETYPES*2 - 1;i++) {
-    element_printf("AlicePublicKey.part3[%d] = %B\n", i, AlicePublicKey.part3[i]);
-  }
-  element_printf("BobSecretKey.a1 = %B\n", BobSecretKey.a1);
-  element_printf("BobSecretKey.a2 = %B\n", BobSecretKey.a2);
-  element_printf("BobSecretKey.a3 = %B\n", BobSecretKey.a3);
-  for(int i = 0; i < FILETYPES*2 - 1;i++) {
-    element_printf("BobPublicKey.part3[%d] = %B\n", i, BobPublicKey.part3[i]);
-  }
-  element_printf("system parameter g = %B\n", g);
-  element_printf("system parameter d = %B\n", d);
-  element_printf("system parameter u = %B\n", u);
-  element_printf("system parameter v = %B\n", v);
-  element_printf("system parameter w = %B\n", w);
   // ReKey Generation
   element_t r1, r2;  
   element_init_G1(r1, pairing);
   element_init_G1(r2, pairing);
   element_invert( tempZR, AliceSecretKey.a1);
   element_pow_zn(r1, BobPublicKey.part1, tempZR); // r1 = BobPublicKey.part1^(1/AliceSecretKey.a1)
-//  element_printf("BobPublicKey.part1 = %B\n", BobPublicKey.part1); 
-//  element_pow_zn(r1, r1, AliceSecretKey.a1); // r1 = BobPublicKey.part1^(1/AliceSecretKey.a1)
-//  element_printf("r1 = %B\n", r1);
   element_mul(r2, AlicePublicKey.part3[2], AlicePublicKey.part3[1]); // We assume ALice share file set S = {1,2}
   element_pow_zn(r2, r2, AliceSecretKey.a2); //  
   // Enc2
   element_t K;
   element_init_GT(K, pairing);
   unsigned long m = 1; //you can specify any number, here we use 1 as an example 
-  unsigned char *data;
+  unsigned long temp = 0;
+ 
   int length = 0;
   element_random(AliceSecondLevelParameter.t);
   element_random(AliceSecondLevelParameter.k);
   element_random(AliceSecondLevelParameter.r);
   element_random(AliceSecondLevelParameter.n);
-  element_pow_zn(K, Z, AliceSecondLevelParameter.r);
+
   element_set(AliceSecondLevelCiphertext.c0, AliceSecondLevelParameter.k);
   element_pow_zn(AliceSecondLevelCiphertext.c1, d, AliceSecondLevelParameter.r);
-  element_pow_zn(AliceSecondLevelCiphertext.c2, g, AliceSecretKey.a1);
+  element_set(AliceSecondLevelCiphertext.c2, AlicePublicKey.part1);
   element_pow_zn(AliceSecondLevelCiphertext.c2, AliceSecondLevelCiphertext.c2, AliceSecondLevelParameter.r);
   element_pow_zn(AliceSecondLevelCiphertext.c3, g, AliceSecondLevelParameter.t);
-  element_pow_zn(AliceSecondLevelCiphertext.c4, g, AliceSecretKey.a2);
-  element_mul(AliceSecondLevelCiphertext.c4, AliceSecondLevelCiphertext.c4, AlicePublicKey.part3[0]);
+  element_mul(AliceSecondLevelCiphertext.c4, AlicePublicKey.part2, AlicePublicKey.part3[0]);
   element_pow_zn(AliceSecondLevelCiphertext.c4, AliceSecondLevelCiphertext.c4, AliceSecondLevelParameter.t);
+
+  element_pow_zn(K, Z, AliceSecondLevelParameter.r);
   element_pow_zn(tempG1, d, AliceSecondLevelParameter.r); // tempG1 = d^r
-  printf("H1(...) = %lu\n ", H1(K, tempG1, pairing));
-  m = m ^ H1(K, tempG1, pairing);
-  printf("H1(...) = %lu\n ", m);
-/*  length = pairing_length_in_bytes_G1(pairing);
-  unsigned long m;
-  insigned long m;
-  data = malloc(length);
-  element_to_bytes(data, AliceSecondLevelCiphertext.c2);
-  data[length] = '\0'; 
-  printf("hash value:%lu\n",hash(data));
-  printf("hash value:%lu\n",hash(data));
-  printf("hash value:%lu\n",hash(data));
-  printf("hash value:%lu\n",hash(data));
-  printf("hash value:%lu\n",hash(data));
-  printf("hash value:%lu\n",hash(data));
-  printf("hash value:%lu\n",hash(data));
-  printf("hash value:%lu\n",hash(data));
-*/
+  element_pairing(tempGT, AlicePublicKey.part3[0], AlicePublicKey.part3[FILETYPES - 1]);
+  element_pow_zn(tempGT, tempGT, AliceSecondLevelParameter.t);
+  temp = m ^ H1(K, tempG1, pairing) ^ H1(tempGT, tempG1, pairing);
+  element_set_si(tempZR, temp);
+  AliceSecondLevelCiphertext.c5.long_type = temp;
+  element_pow_zn(AliceSecondLevelCiphertext.c5.G1_type, g, tempZR);
+ 
+  element_t h, h1; // h and h prime
+  element_init_Zr(h, pairing);
+  element_init_Zr(h1, pairing);
+  element_set_si(h,H(AliceSecondLevelCiphertext.c1, AliceSecondLevelCiphertext.c5.G1_type, pairing));
+  temp = H1(K, AliceSecondLevelCiphertext.c1, pairing);
+  temp = temp ^ m;
+  element_set_si(tempZR, temp);
+  element_pow_zn(tempG1, g, tempZR);
+  element_set_si(h1, H(AliceSecondLevelCiphertext.c1, tempG1, pairing));
+  element_set(tempG1, u);
+  element_pow_zn(tempG1, tempG1, h);
+  element_set(tempG1_2, v);
+  element_pow_zn(tempG1_2, tempG1_2, AliceSecondLevelParameter.k);
+  element_mul(AliceSecondLevelCiphertext.c6, tempG1, tempG1_2);
+  element_mul(AliceSecondLevelCiphertext.c6, AliceSecondLevelCiphertext.c6, w);
+  element_pow_zn(AliceSecondLevelCiphertext.c6, AliceSecondLevelCiphertext.c6, AliceSecondLevelParameter.r);
+
+  element_set(tempG1, u);
+  element_pow_zn(tempG1, tempG1, h1);
+  element_set(tempG1_2, v);
+  element_pow_zn(tempG1_2, tempG1_2, AliceSecondLevelParameter.k);
+  element_mul(AliceSecondLevelCiphertext.c7, tempG1, tempG1_2);
+  element_mul(AliceSecondLevelCiphertext.c7, AliceSecondLevelCiphertext.c7, w);
+  element_pow_zn(AliceSecondLevelCiphertext.c7, AliceSecondLevelCiphertext.c7, AliceSecondLevelParameter.r);
+
+  element_pow_zn(AliceSecondLevelCiphertext.c8, g, AliceSecondLevelParameter.n);  
+
+  temp = H1(K, AliceSecondLevelCiphertext.c8, pairing);
+  element_set_si(tempZR, temp);
+  element_pow_zn(AliceSecondLevelCiphertext.c9, g, tempZR);
+
+
+
+  element_printf("=================================================\n");
+  element_printf("AliceSecondLevelCiphertext.c1 = %B\n", AliceSecondLevelCiphertext.c1);
+  element_printf("AliceSecondLevelCiphertext.c2 = %B\n", AliceSecondLevelCiphertext.c2);
+  element_printf("AliceSecondLevelCiphertext.c3 = %B\n", AliceSecondLevelCiphertext.c3);
+  element_printf("AliceSecondLevelCiphertext.c4 = %B\n", AliceSecondLevelCiphertext.c4);
+  element_printf("AliceSecondLevelCiphertext.c5 = %B\n", AliceSecondLevelCiphertext.c5.G1_type);
+  element_printf("AliceSecondLevelCiphertext.c6 = %B\n", AliceSecondLevelCiphertext.c6);
+  element_printf("AliceSecondLevelCiphertext.c7 = %B\n", AliceSecondLevelCiphertext.c7);
+  element_printf("AliceSecondLevelCiphertext.c8 = %B\n", AliceSecondLevelCiphertext.c8);
+  element_printf("AliceSecondLevelCiphertext.c9 = %B\n", AliceSecondLevelCiphertext.c9);
+  element_printf("=================================================\n");
   // Enc1
   element_random(AliceFirstLevelParameter.k);
   element_random(AliceFirstLevelParameter.r);
   element_random(AliceFirstLevelParameter.n);
   element_set(AliceFirstLevelCiphertext.c0, AliceFirstLevelParameter.k);
+  element_pow_zn(AliceFirstLevelCiphertext.c1, d, AliceFirstLevelParameter.r);
+  element_pairing(AliceFirstLevelCiphertext.c2, AlicePublicKey.part2, g);
+  element_pow_zn(AliceFirstLevelCiphertext.c2, AliceFirstLevelCiphertext.c2, AliceFirstLevelParameter.r);
+
+
+  element_pow_zn(K, Z, AliceFirstLevelParameter.r);
+  element_pow_zn(tempG1, d, AliceFirstLevelParameter.r);
+  temp = H1(K, tempG1, pairing);
+  temp = temp ^ m;
+  element_set_si(tempZR, temp);
+  AliceFirstLevelCiphertext.c3.long_type = temp;
+  element_pow_zn(AliceFirstLevelCiphertext.c3.G1_type, g, tempZR);
+
+  element_set_si(h,H(AliceFirstLevelCiphertext.c1, AliceFirstLevelCiphertext.c3.G1_type, pairing));
+  element_set(tempG1, u);
+  element_pow_zn(tempG1, tempG1, h);
+  element_set(tempG1_2, v);
+  element_pow_zn(tempG1_2, tempG1_2, AliceFirstLevelParameter.k);
+  element_mul(AliceFirstLevelCiphertext.c4, tempG1, tempG1_2);
+  element_mul(AliceFirstLevelCiphertext.c4, AliceFirstLevelCiphertext.c4, w);
+  element_pow_zn(AliceFirstLevelCiphertext.c4, AliceFirstLevelCiphertext.c4, AliceFirstLevelParameter.r);
+
+
+  element_pow_zn(AliceFirstLevelCiphertext.c5, g, AliceFirstLevelParameter.n);
+  temp = H1(K, AliceFirstLevelCiphertext.c5, pairing);
+  element_set_si(tempZR, temp);
+  element_pow_zn(AliceFirstLevelCiphertext.c6, g, tempZR);
+
+
+  element_printf("=================================================\n");
+  element_printf("AliceFirstLevelCiphertext.c1 = %B\n", AliceFirstLevelCiphertext.c1);
+  element_printf("AliceFirstLevelCiphertext.c2 = %B\n", AliceFirstLevelCiphertext.c2);
+  element_printf("AliceFirstLevelCiphertext.c3 = %B\n", AliceFirstLevelCiphertext.c3.G1_type);
+  element_printf("AliceFirstLevelCiphertext.c4 = %B\n", AliceFirstLevelCiphertext.c4);
+  element_printf("AliceFirstLevelCiphertext.c5 = %B\n", AliceFirstLevelCiphertext.c5);
+  element_printf("AliceFirstLevelCiphertext.c6 = %B\n", AliceFirstLevelCiphertext.c6);
+  element_printf("=================================================\n");
+
   // Re-encrption
     
   // Dec1
