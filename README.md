@@ -33,15 +33,16 @@ until finished
 End with an example of getting some data out of the system or using it for a little demo
 ### How to compile 
 ```
-1.chmod <filename> 777
-2.chown -R <username> `pwd`
-3.gcc -o <outputname> <filename> -I /usr/local/include/pbc -L /usr/local/lib -Wl,-rpath /usr/local/lib  -lpbc -lgmp
-4. ./<outputname> < param/<paramfile>
+1.gcc -o <outputname> <filename> -I /usr/local/include/pbc -L /usr/local/lib -Wl,-rpath /usr/local/lib  -lpbc -lgmp
+2. ./<outputname> param/<paramfile>
 ```
 
 ## Built With
-
-* [PBC](https://crypto.stanford.edu/pbc/) - The Pairing-Based Cryptography Library
+* [M4](http://www.gnu.org/software/m4/m4.html) - GNU M4 is an implementation of the traditional Unix macro processor.
+* [Flex](https://github.com/westes/flex) - Flex is a tool for generating scanners.
+* [Bison](https://www.gnu.org/software/bison/) - Bison is a general-purpose parser generator.
+* [GMP](https://gmplib.org/) - The GNU Multiple Precision Arithmetic Library.
+* [PBC](https://crypto.stanford.edu/pbc/) - The Pairing-Based Cryptography Library.
 
 
 ## Authors
