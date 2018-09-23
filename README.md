@@ -44,6 +44,8 @@ End with an example of getting some data out of the system or using it for a lit
 * [GMP](https://gmplib.org/) - The GNU Multiple Precision Arithmetic Library.
 * [PBC](https://crypto.stanford.edu/pbc/) - The Pairing-Based Cryptography Library.
 
+Build Flow:
+
 ![Install flow](https://github.com/ferranschen/KAPRE/blob/master/Install%20flow.png)
 
 ## Authors
