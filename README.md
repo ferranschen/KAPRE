@@ -1,4 +1,3 @@
-# Efficient Key-Aggregate Proxy Re-Encryption for Secure Data Sharing in Clouds
 
 In our proposed scheme, we integrate a [PRE scheme](https://link.springer.com/article/10.1007/s11432-010-0047-3) and a [key-aggregate approach](https://ieeexplore.ieee.org/document/6497048/) into a key-aggregate proxy re-encryption scheme. The proposed algorithm handles performance issues in reducing the number of re-keys while achieving fine-grained access control on the encrypted files, simultaneously.
 
